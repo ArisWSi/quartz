@@ -20,7 +20,7 @@ SD 3.x 仍保留两个 CLIP 编码器参与条件，FLUX 则只用 CLIP-L 的 po
 
 ## SD 1.x 2.x
 
-Stable Diffusion 是把 [[LDM]] 放到 LAION-5B 与大规模算力上训练的产物（CompVis / Runway / Stability，2022），开源 text-to-image 自此成为可能。
+Stable Diffusion 是把 [[LDM]] 放到 [[Datasets|LAION-5B]] 与大规模算力上训练的产物（CompVis / Runway / Stability，2022），开源 text-to-image 自此成为可能。
 
 1.x 的配置几乎就是 [[LDM]] 原样放大：VAE 把图像压到 8× 的 latent，约 860M 参数的 U-Net 在其中去噪（[[Architecture]]），冻结的 CLIP ViT-L/14（77 token）经 cross-attention 注入，配合 CFG（训练时 drop 10% 的文本条件）；按 512×512 训练。1.4/1.5 只是数据与训练细节的迭代（1.5 总参数量约 983M）。
 
