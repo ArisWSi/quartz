@@ -1,3 +1,14 @@
+---
+title: 多模态学习 Lec1 · Intro to Multimodal Learning
+aliases:
+  - Intro to Multimodal learning
+tags:
+  - course
+  - multimodal-learning
+  - 26f
+description: 多模态学习第一讲：模态的定义、多模态研究的历史视角、常见任务与课程大纲。
+---
+
 ## What's Multi-modal
 - Modality: a certain type of information or repr of the information.
 - Sensory modality: primary form of sensory.

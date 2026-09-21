@@ -1,3 +1,16 @@
+---
+title: WorldJourney
+aliases:
+  - World Journey
+tags:
+  - paper
+  - world-model
+  - 3d-scene-generation
+  - video-generation
+  - 2024
+description: WorldJourney：用 LLM 逐步生成场景描述，结合单目深度、点云渲染与 outpainting 实现 perpetual scene generation 的视频生成工作流。
+---
+
 ## Overview
 
 ![Overview framework](assets/worldjourney-framework.png)

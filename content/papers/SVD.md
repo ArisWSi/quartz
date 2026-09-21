@@ -1,3 +1,16 @@
+---
+title: SVD
+aliases:
+  - Stable Video Diffusion
+tags:
+  - paper
+  - video-generation
+  - diffusion
+  - data-curation
+  - 2023
+description: Stable Video Diffusion：聚焦数据管线与训练策略的视频生成工作，提出系统化的数据筛选流程与图像到视频的多阶段课程训练。
+---
+
 ## Overview
 一篇聚焦 data pipeline 和训练策略的工作。在架构和算法上没有突出的改变，但依然超越了前代模型成为SOTA。
 

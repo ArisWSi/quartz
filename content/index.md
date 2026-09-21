@@ -1,5 +1,6 @@
 ---
 title: Dedicated to Nahida
+description: 个人笔记站首页：扩散模型与世界模型相关的待办、待读论文与学习计划。
 ---
 # Todo
 

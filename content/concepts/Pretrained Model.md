@@ -4,6 +4,7 @@ tags:
   - concept
   - model
   - pretrained
+description: 预训练模型速查：CLIP 文本/图像编码器，以及 SD 1.x/2.x、SD 3.x、FLUX 等文生图骨干。
 ---
 
 ## CLIP

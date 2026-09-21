@@ -5,6 +5,7 @@ aliases:
 tags:
   - concept
   - 3d-reconstruction
+description: CUT3R：DUSt3R 面向视频的持续状态（persistent state）扩展，支持长视频的连续流式 3D 重建。
 ---
 
 # CUT3R

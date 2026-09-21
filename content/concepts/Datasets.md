@@ -1,3 +1,13 @@
+---
+title: Datasets
+aliases:
+  - Dataset
+tags:
+  - concept
+  - dataset
+description: 常用数据集的速查笔记，目前涵盖 LAION-5B 的构建、过滤管线与下游使用。
+---
+
 # Datasets
 
 常用数据集的速查与笔记（论文笔记中提到数据时的展开阅读处）。

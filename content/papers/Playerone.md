@@ -1,3 +1,17 @@
+---
+title: PlayerOne
+aliases:
+  - Player One
+tags:
+  - paper
+  - video-generation
+  - world-model
+  - human-motion
+  - 3d-reconstruction
+  - 2025
+description: PlayerOne：第一人称真实世界视频生成，通过 Part-disentangled Motion Injection 与 Scene-frame Reconstruction 对齐人体运动与场景几何。
+---
+
 ## Overview
 
 ![总览](assets/playerone-overview.png)

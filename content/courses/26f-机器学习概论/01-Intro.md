@@ -1,3 +1,14 @@
+---
+title: 机器学习概论 01 · Intro
+aliases:
+  - 机器学习概论 Lec1
+tags:
+  - course
+  - machine-learning
+  - 26f
+description: 机器学习概论第一讲：机器学习类别、概率建模视角、基本范式、线性回归，以及泛化、容量与正则化。
+---
+
 ## 经验
 
 ### 机器学习类别

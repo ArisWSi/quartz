@@ -3,6 +3,7 @@ title: Metrics
 tags:
   - concept
   - metric
+description: 生成模型常用评估指标：FID 与 KID 的定义、假设、局限与使用注意事项。
 ---
 
 ## FID

@@ -4,16 +4,29 @@ tags:
   - synthesis
   - diffusion
   - generative-model
+description: 扩散模型综述：从 DDPM、LDM、DiT、ControlNet 到 Rectified Flow 等流模型及其应用。
 ---
 
 ## from DDPM to ControlNet
 
-[[DDPM]] 是一篇范式级的论文，提出了diffusion model的数学建模，并使用UNet架构实现了图像生成任务。
+[[DDPM]] 在已有 diffusion probabilistic models 的基础上，通过去噪参数化、训练目标与 UNet 实现，展示了高质量图像生成能力。
 [[LDM]] 基于[[DDPM#Experiments & Discussions]]中的率失真分析，提出了一套二阶段的隐空间生成路线：在感知压缩后的隐空间上，使用diffusion models做进一步的语义压缩。在效率和质量上都取得了很好的结果。在此之外，它还提出了使用cross-attention机制的条件生成方法，可以接受的条件类型广泛
 [[DiT]] 是一篇架构改进论文。其将旧的UNet架构替换成Tranformer Block，做了详尽的实验分析以说明计算效率、生成质量，以及scalability。并且尝试了多种条件注入的机制。
 [[ControlNet]] 的灵感来源于NLP领域的超网络(HyperNetwork)和模型微调(Finetuning)。在一个原网络的copy上训练，并经过zero-conv作为残差加到解码器的feature上。能够很好的保持spatial信息。
 
 [[WSDT]]
+
+## 从方法改进到问题重构
+
+值得关注的不只是换了什么架构，还包括作者如何识别既有方法中不必保留的限制。DDIM 从加速 DDPM 采样出发，重新审视了训练目标与采样过程必须绑定到什么程度。
+
+去噪训练使用各时刻的 $q(x_t\mid x_0)$，并不直接观察完整加噪轨迹。DDIM 构造保持这些条件边缘分布的非马尔可夫前向过程，使一族生成过程可以共用去噪训练目标，其中包括确定性采样。它保留了训练所需的结构，同时改变了时刻之间的连接方式。[DDIM §3–4](https://arxiv.org/html/2010.02502v4)
+
+DDIM 的 §4.3 已讨论确定性更新的连续极限与 ODE 的联系。Score-SDE 则系统建立了正向 SDE、反向 SDE 和 probability flow ODE；在精确 score 等条件下，后两者具有相同时间边缘分布，但并不具有相同样本轨迹，有限步数值求解也会引入误差。[DDIM §4.3](https://arxiv.org/html/2010.02502v4#S4.SS3) · [Score-SDE](https://arxiv.org/abs/2011.13456)
+
+我的收获是：改进方法也可能包含深刻的问题重构。提出新视角不一定是增加假设，也可以是发现哪些原有条件能够放松。读论文时应追问：目标真正依赖什么，哪些只是当前算法的选择？
+
+这与简化的能力相连：区分人为设计、精确推导、分布近似与经验目标，再分别检查它们的依据和失效条件。具体见 [[DDPM#建模与简化的层次]]；低层视觉中的应用与实验复盘见 [[Low level#实验与复盘：定位推理链中失效的环节]]。
 
 ## flow based models and their applications
 

@@ -1,3 +1,52 @@
 @use "./variables.scss" as *;
 
 // put your custom CSS here!
+
+// ============================================================
+// "plain" callout — a deliberately understated box
+// Usage:  > [!plain] optional title
+// ============================================================
+.callout[data-callout="plain"] {
+  // neutral palette: no accent colour, no tinted background
+  --color: var(--darkgray);
+  --border: var(--lightgray);
+  --bg: transparent;
+
+  border: 1px solid var(--lightgray);
+  border-radius: 4px;
+  background-color: transparent;
+  padding: 0 1.1rem;
+
+  .callout-title {
+    padding: 0.7rem 0 0.2rem;
+
+    // drop the icon entirely
+    .callout-icon {
+      display: none;
+    }
+
+    .callout-title-inner {
+      font-weight: $normalWeight;
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+
+      // base styles colour the inner <p> via --color, so override it too
+      & > p {
+        color: var(--darkgray);
+        opacity: 0.75;
+      }
+    }
+  }
+
+  .callout-content {
+    padding-bottom: 0.8rem;
+
+    & > :first-child {
+      margin-top: 0;
+    }
+
+    & > :last-child {
+      margin-bottom: 0;
+    }
+  }
+}

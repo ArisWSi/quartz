@@ -4,6 +4,7 @@ tags:
   - concept
   - 4d-reconstruction
   - 3d-reconstruction
+description: Geo4D：利用视频生成模型的几何先验做单目视频 4D 重建，并提供点图 latent 编码器。
 ---
 
 # Geo4D

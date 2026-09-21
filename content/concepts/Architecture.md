@@ -3,6 +3,7 @@ title: Architecture
 tags:
   - concept
   - architecture
+description: 生成模型常用的网络架构速查：U-Net 条件去噪骨干，以及 LDM、ControlNet 等对它的扩展。
 ---
 
 ## UNet

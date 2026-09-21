@@ -6,6 +6,7 @@ aliases:
 tags:
   - concept
   - segmentation
+description: SAM 2：图像与视频统一的可提示分割模型，借助 streaming memory 跨帧传播掩码。
 ---
 
 # SAM 2

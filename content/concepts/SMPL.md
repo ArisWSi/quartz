@@ -7,6 +7,7 @@ tags:
   - concept
   - body-model
   - 3d-human
+description: SMPL：参数化人体网格模型，用形状与姿态参数紧凑表示并重建带蒙皮的人体网格。
 ---
 
 # SMPL

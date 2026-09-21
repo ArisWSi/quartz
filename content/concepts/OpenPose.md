@@ -3,6 +3,7 @@ title: OpenPose
 tags:
   - concept
   - pose-estimation
+description: OpenPose：自底向上的 2D 多人姿态估计，用关键点 heatmap 与 PAF 连接骨架。
 ---
 
 # OpenPose

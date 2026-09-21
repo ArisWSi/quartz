@@ -6,6 +6,7 @@ tags:
   - concept
   - body-model
   - 3d-human
+description: SMPL-X：在 SMPL 基础上显式建模双手与面部的全身参数化人体模型。
 ---
 
 # SMPLX

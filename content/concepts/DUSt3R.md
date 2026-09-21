@@ -3,6 +3,7 @@ title: DUSt3R
 tags:
   - concept
   - 3d-reconstruction
+description: DUSt3R：从未标定图像对端到端回归稠密点图与置信度，并统一到同一坐标系的 3D 重建工作。
 ---
 
 # DUSt3R
