@@ -1,5 +1,21 @@
 @use "./variables.scss" as *;
 
+// Cormorant Garamond italic — high-contrast display serif, used only for
+// the index epigraph. Declared inline rather than with @import, which must
+// precede all other rules and so cannot work from custom.scss (it is
+// concatenated after base.scss). Latin subset only; that is all the
+// epigraph needs.
+@font-face {
+  font-family: "Cormorant Garamond";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("https://fonts.gstatic.com/s/cormorantgaramond/v21/co3smX5slCNuHLi8bLeY9MK7whWMhyjYrGFEsdtdc62E6zd58jD-iNM8A_6pUKz9.woff2")
+    format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 // put your custom CSS here!
 
 // ============================================================
@@ -48,5 +64,73 @@
     & > :last-child {
       margin-bottom: 0;
     }
+  }
+}
+
+// ============================================================
+// index — title page
+// A dedication, not an article: the page title becomes a quiet
+// superscription and the single line carries the composition.
+// Scoped to the index slug so no other note is affected.
+// ============================================================
+body[data-slug="index"] {
+  .center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: calc(100vh - 2 * #{$topSpacing});
+
+    @media all and ($mobile) {
+      min-height: 60vh;
+    }
+  }
+
+  // superscription: small, spaced, deliberately subordinate to the line
+  .page-header {
+    margin: 0;
+    text-align: center;
+
+    .article-title {
+      margin: 0;
+      font-size: 0.75rem;
+      font-weight: $normalWeight;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gray);
+    }
+
+    // date and read time say nothing useful here
+    .content-meta {
+      display: none;
+    }
+  }
+
+  article {
+    text-align: center;
+
+    p {
+      margin: 2.5rem 0 0;
+      // Cormorant Garamond runs small and light, so it needs a larger
+      // size than a workhorse serif would at the same optical weight
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: clamp(2.25rem, 7vw, 4rem);
+      font-weight: 400;
+      font-style: italic;
+      line-height: 1.15;
+      letter-spacing: 0.01em;
+      color: var(--dark);
+      text-wrap: balance;
+    }
+  }
+
+  // hairline standing in for the usual full-width rule under the article
+  hr {
+    width: 3rem;
+    margin: 2.5rem auto 0;
+    border-color: var(--lightgray);
+  }
+
+  .page-footer {
+    display: none;
   }
 }

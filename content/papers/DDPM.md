@@ -14,6 +14,153 @@ status: draft
 
 # DDPM
 
+## Review
+
+DDPM 从最大化数据对数似然 $\mathbb E_{q(x_0)}[\log p_\theta(x_0)]$ 出发。由于直接边缘化隐变量 $x_{1:T}$ 很困难，用人为设计的前向过程 $q(x_{1:T}\mid x_0)$ 构造 ELBO，转而最小化 negative ELBO。将其分解后，每个中间项 $L_{t-1}$ 都是解析后验 $q(x_{t-1}\mid x_t,x_0)$ 与模型反向转移 $p_\theta(x_{t-1}\mid x_t)$ 之间的 KL。固定反向方差时，Gaussian KL 中与 $\theta$ 有关的部分化为均值的 MSE；再以预测噪声 $\epsilon_\theta$ 参数化均值，得到带时间步权重的噪声 MSE。论文进一步去掉该权重，采用 $L_{\mathrm{simple}}$：这是改变了各时间步相对权重的训练目标，实验中提升了样本质量，但不再是原始的精确变分目标。
+
+反向过程的建模选择是：首先令 $p_\theta(x_{t-1}\mid x_t)$ 为 Gaussian，再把协方差固定为 $\sigma_t^2\mathbf I$，这是比一般对角阵更强的各向同性假设。前向过程给出的 $q(x_{t-1}\mid x_t,x_0)$ 则是**给定 $x_0$ 后的精确 Gaussian 后验**；不带 $x_0$ 的 $q(x_{t-1}\mid x_t)$ 一般不保证是 Gaussian。模型均值沿用该解析后验均值的函数形式，以网络通过 $\epsilon_\theta$ 构造的 $\hat x_{0,\theta}$ 代替采样时未知的 $x_0$。
+
+### 预备数学公式
+
+KL 散度及 Jensen 不等式：
+
+$$
+D_{\mathrm{KL}}(r\|s)
+=\mathbb E_r\!\left[\log\frac{r(z)}{s(z)}\right]\ge 0,
+\qquad
+\log\mathbb E[W]\ge\mathbb E[\log W].
+$$
+
+令 $z=x_{1:T}$、$q(z\mid x_0)$ 为前向过程，则
+
+$$
+\begin{aligned}
+\log p_\theta(x_0)
+&=\log\mathbb E_{q(z\mid x_0)}
+\left[\frac{p_\theta(x_0,z)}{q(z\mid x_0)}\right]\\
+&\ge
+\underbrace{\mathbb E_{q(z\mid x_0)}
+\left[\log\frac{p_\theta(x_0,z)}{q(z\mid x_0)}\right]}_{\mathrm{ELBO}(x_0)},\\
+\log p_\theta(x_0)-\mathrm{ELBO}(x_0)
+&=D_{\mathrm{KL}}\!\left(q(z\mid x_0)\|p_\theta(z\mid x_0)\right).
+\end{aligned}
+$$
+
+常用的 Gaussian 运算包括：若 $X\sim\mathcal N(\mu,\Sigma)$，则 $AX+b\sim\mathcal N(A\mu+b,A\Sigma A^\top)$；独立 Gaussian 相加时，均值与协方差分别相加。两个关于**同一变量**的 Gaussian 相乘仍与 Gaussian 成正比，其精度和均值满足
+
+$$
+\mathcal N(x;\mu_1,\Sigma_1)\mathcal N(x;\mu_2,\Sigma_2)
+\propto\mathcal N(x;\mu,\Sigma),\qquad
+\Sigma^{-1}=\Sigma_1^{-1}+\Sigma_2^{-1},\quad
+\mu=\Sigma(\Sigma_1^{-1}\mu_1+\Sigma_2^{-1}\mu_2).
+$$
+
+两个 $d$ 维 Gaussian 的 KL 闭式解是
+
+$$
+D_{\mathrm{KL}}\!\left(\mathcal N(\mu_1,\Sigma_1)\|\mathcal N(\mu_2,\Sigma_2)\right)
+=\frac12\left[
+\operatorname{tr}(\Sigma_2^{-1}\Sigma_1)
++(\mu_2-\mu_1)^\top\Sigma_2^{-1}(\mu_2-\mu_1)
+-d+\log\frac{\det\Sigma_2}{\det\Sigma_1}
+\right].
+$$
+
+### 对应的 DDPM 推导
+
+设 $\alpha_t=1-\beta_t$、$\bar\alpha_t=\prod_{s=1}^t\alpha_s$。前向 Gaussian 链可以合并为一步采样：
+
+$$
+x_t=\sqrt{\bar\alpha_t}x_0+\sqrt{1-\bar\alpha_t}\,\epsilon,
+\quad \epsilon\sim\mathcal N(0,\mathbf I),
+\qquad
+q(x_t\mid x_0)=\mathcal N\!\left(x_t;\sqrt{\bar\alpha_t}x_0,(1-\bar\alpha_t)\mathbf I\right).
+$$
+
+由 Bayes 公式和 Gaussian 相乘规则，对 $t>1$ 有
+
+$$
+\begin{aligned}
+q(x_{t-1}\mid x_t,x_0)
+&\propto q(x_t\mid x_{t-1})q(x_{t-1}\mid x_0)\\
+q(x_{t-1}\mid x_t,x_0)
+&=\mathcal N\!\left(x_{t-1};\tilde\mu_t(x_t,x_0),\tilde\beta_t\mathbf I\right),\\
+\tilde\mu_t(x_t,x_0)
+&=\frac{\sqrt{\bar\alpha_{t-1}}\beta_t}{1-\bar\alpha_t}x_0
++\frac{\sqrt{\alpha_t}(1-\bar\alpha_{t-1})}{1-\bar\alpha_t}x_t,\\
+\tilde\beta_t
+&=\frac{1-\bar\alpha_{t-1}}{1-\bar\alpha_t}\beta_t.
+\end{aligned}
+$$
+
+固定 $x_0$ 时，这里的 $\mathbb E_q$ 原本可对整条轨迹 $q(x_{1:T}\mid x_0)$ 求期望；对只依赖 $x_{t-1},x_t$ 的项，积分掉其余变量后等价于
+
+$$
+\mathbb E_{q(x_{1:T}\mid x_0)}[f(x_{t-1},x_t)]
+=\mathbb E_{q(x_t\mid x_0)}
+\mathbb E_{q(x_{t-1}\mid x_t,x_0)}[f(x_{t-1},x_t)].
+$$
+
+因此，固定 $x_0$ 时，negative ELBO 可写成
+
+$$
+\begin{aligned}
+\mathcal L(x_0)
+={}&D_{\mathrm{KL}}\!\left(q(x_T\mid x_0)\|p(x_T)\right)\\
+&+\sum_{t=2}^{T}\mathbb E_{q(x_t\mid x_0)}
+D_{\mathrm{KL}}\!\left(q(x_{t-1}\mid x_t,x_0)\|p_\theta(x_{t-1}\mid x_t)\right)\\
+&-\mathbb E_{q(x_1\mid x_0)}[\log p_\theta(x_0\mid x_1)].
+\end{aligned}
+$$
+
+取 $p_\theta(x_{t-1}\mid x_t)=\mathcal N(x_{t-1};\mu_\theta(x_t,t),\sigma_t^2\mathbf I)$，且 $\sigma_t^2$ 不依赖 $\theta$。Gaussian KL 中与 $\theta$ 有关的部分便是
+
+$$
+L_{t-1}
+=\mathbb E_q\!\left[
+\frac{\|\tilde\mu_t(x_t,x_0)-\mu_\theta(x_t,t)\|^2}{2\sigma_t^2}
+\right]+C_t.
+$$
+
+用前向采样式消去 $x_0$，并以 $\epsilon_\theta$ 参数化模型均值。相当于先构造
+
+$$
+\hat x_{0,\theta}(x_t,t)
+=\frac{x_t-\sqrt{1-\bar\alpha_t}\,\epsilon_\theta(x_t,t)}{\sqrt{\bar\alpha_t}},
+\qquad
+\mu_\theta(x_t,t)=\tilde\mu_t(x_t,\hat x_{0,\theta}).
+$$
+
+因此：
+
+$$
+\tilde\mu_t(x_t,x_0)
+=\frac1{\sqrt{\alpha_t}}\left(x_t-\frac{\beta_t}{\sqrt{1-\bar\alpha_t}}\epsilon\right),
+\qquad
+\mu_\theta(x_t,t)
+=\frac1{\sqrt{\alpha_t}}\left(x_t-\frac{\beta_t}{\sqrt{1-\bar\alpha_t}}\epsilon_\theta(x_t,t)\right).
+$$
+
+代回均值 MSE，得到原始变分目标中的加权噪声误差；去掉权重得到简化目标：
+
+$$
+\begin{aligned}
+L_{t-1}
+&=\mathbb E_{x_0,\epsilon}\!\left[
+\underbrace{\frac{\beta_t^2}{2\sigma_t^2\alpha_t(1-\bar\alpha_t)}}_{w_t}
+\|\epsilon-\epsilon_\theta(x_t,t)\|^2
+\right]+C_t,\\
+L_{\mathrm{simple}}
+&=\mathbb E_{t,x_0,\epsilon}\!\left[
+\left\|\epsilon-\epsilon_\theta\!\left(
+\sqrt{\bar\alpha_t}x_0+\sqrt{1-\bar\alpha_t}\epsilon,t
+\right)\right\|^2\right],
+\quad t\sim\mathrm{Uniform}\{1,\ldots,T\}.
+\end{aligned}
+$$
+
+固定前向方差时，$L_T$ 与 $\theta$ 无关；$L_{\mathrm{simple}}$ 的 $t=1$ 项则以噪声误差近似处理重建项 $L_0$。
+
 > [!quote]
 > A face... a fleet... a war... a man... a thought... a trick... a trick to break the walls of Troy... and burn it screaming to the ground!
 >
@@ -33,10 +180,10 @@ $$
 
 的马尔可夫过程，希望建模其反过程，从高斯噪声生成图像。
 
-优化目标是最大似然：
+优化目标是最大化数据的对数似然：
 
 $$
-p_\theta(x_0)
+\log p_\theta(x_0)
 $$
 
 ## Forward Process
