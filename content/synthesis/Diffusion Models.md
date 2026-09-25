@@ -7,14 +7,17 @@ tags:
 description: 扩散模型综述：从 DDPM、LDM、DiT、ControlNet 到 Rectified Flow 等流模型及其应用。
 ---
 
+## 阅读顺序
+
+先读 [[LDM]]，分清 autoencoder、文本编码器和去噪 UNet；[[DiT]] 改去噪网络，[[ControlNet]] 在原网络旁增加可训练的控制分支。之后再读 [[RectifiedFlow]]，比较 [[FlowEdit]] 与 [[StableFlow]] 两种编辑思路，最后看 [[WSDT]] 如何在去噪时改动风格相关特征。
+
 ## from DDPM to ControlNet
 
 [[DDPM]] 在已有 diffusion probabilistic models 的基础上，通过去噪参数化、训练目标与 UNet 实现，展示了高质量图像生成能力。
-[[LDM]] 基于[[DDPM#Experiments & Discussions]]中的率失真分析，提出了一套二阶段的隐空间生成路线：在感知压缩后的隐空间上，使用diffusion models做进一步的语义压缩。在效率和质量上都取得了很好的结果。在此之外，它还提出了使用cross-attention机制的条件生成方法，可以接受的条件类型广泛
-[[DiT]] 是一篇架构改进论文。其将旧的UNet架构替换成Tranformer Block，做了详尽的实验分析以说明计算效率、生成质量，以及scalability。并且尝试了多种条件注入的机制。
-[[ControlNet]] 的灵感来源于NLP领域的超网络(HyperNetwork)和模型微调(Finetuning)。在一个原网络的copy上训练，并经过zero-conv作为残差加到解码器的feature上。能够很好的保持spatial信息。
-
-[[WSDT]]
+[[LDM]] 用感知压缩的二维潜空间减少去噪成本，以 cross-attention 接入文本或布局等条件。autoencoder 管表示与重建，条件编码器管提示词，UNet 管潜变量去噪。
+[[DiT]] 保留潜空间扩散框架，将去噪 UNet 换成 Transformer，并比较不同 patch 大小、模型规模与条件注入方式的效果。
+[[ControlNet]] 冻结原 UNet、训练其编码侧与中间块的副本，经 zero convolution 把各尺度控制特征注入原网络的 skip connection 与中间块。
+[[WSDT]] 在推理时对 self-attention 中与风格相关的特征做逐通道分布变换，用于参考图风格生成。
 
 ## 从方法改进到问题重构
 
@@ -30,9 +33,9 @@ DDIM 的 §4.3 已讨论确定性更新的连续极限与 ODE 的联系。Score-
 
 ## flow based models and their applications
 
-流模型是近来广受采纳的方案。是将图像生成解释为从分布到分布的搬运，基于最优运输理论使用ODE来描述这个过程。
+流模型通过学习速度场与求解 ODE 描述从源分布到目标分布的连续搬运；有些构造借助最优运输思想，但不能把一般流模型等同于已求得最优运输。
 
 [[RectifiedFlow]] 修正流模型属于 flow matching 流派，是比较前沿的少步采样范式。它把生成建模为噪声与数据两个分布之间由 ODE 描述的搬移过程，网络学习一个速度场，使沿该速度场积分即可把噪声样本送入数据分布。它的独特贡献是 reflow 流程：先把上一轮训练好的速度场模型固定下来，用它前向求解 ODE，把重新采样的噪声映射到新的数据端点，组成新的噪声-数据配对，再在这些配对对应的直线插值路径上重新训练，使轨迹不断被“拉直”；反复迭代后逐步逼近最优运输给出的直线位移映射。轨迹越直，离散化误差越小，生成所需的采样步数越少，配合蒸馏甚至能做到一步生成。
 
-[[FlowEdit]] 
-[[StableFlow]]
+[[FlowEdit]] 用源/目标条件速度场之差直接编辑真实图像，避免对源图做 ODE 反演；其配对是启发式，并非严格最优运输。
+[[StableFlow]] 先用逐层旁路实验识别对生成结果影响大的 DiT 层，再在这些层注入参考图视觉特征；编辑真实图像时仍需反演并改进其重建。

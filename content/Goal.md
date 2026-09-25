@@ -1,6 +1,7 @@
 ---
 title: Dedicated to Nahida
 stealth: true
+unlisted: true
 ---
 # Papers-to-Read
 
@@ -10,6 +11,12 @@ stealth: true
 - [ ] LAION-5B（Schuhmann et al. 2022, arXiv:2210.08402）：图文数据的构建/清洗管线，数据方法论标杆（速览见 [[Datasets]]）
 - [ ] [宋飏的书](https://stacks.stanford.edu/file/zy983tp3399/submit-augmented.pdf)
 
+分析哲学概论：2ch
+编译原理：语法分析
+ai数：很多很多
+多模态学习：没听过
+认知推理：没听过
+生成模型基础：没听过
+机器学习概论：2ch
 
-data-pipeline:
-翻译abstract/introduction， -> Method -> Experiments
+我还是人类吗。。。
